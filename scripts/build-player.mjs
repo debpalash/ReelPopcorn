@@ -7,7 +7,7 @@ const tags={youtube:'youtube-video',vimeo:'vimeo-video',twitch:'twitch-video',ti
 const bundles={};
 const allNotices=new Map();
 for(const [provider,tag] of Object.entries(tags)) {
- const result=await build({stdin:{contents:`import '@videojs/html/media/${tag}'; import {installBridge} from './src/media/browser-bridge.js'; installBridge(${JSON.stringify({provider,tag})});`,resolveDir:root},bundle:true,write:false,minify:true,format:'iife',platform:'browser',target:['safari17','chrome120'],legalComments:'eof',charset:'ascii',metafile:true});
+ const result=await build({stdin:{contents:`import '@videojs/html/media/${tag}'; import {installBridge} from './src/media/browser-bridge.js'; installBridge(${JSON.stringify({provider,tag})});`,resolveDir:root},bundle:true,write:false,tsconfigRaw:{compilerOptions:{}},minify:true,format:'iife',platform:'browser',target:['safari17','chrome120'],legalComments:'eof',charset:'ascii',metafile:true});
  const licenses=new Map();
  const packages=new Set(Object.keys(result.metafile.inputs).map(file=>file.match(/node_modules\/((?:@[^/]+\/)?[^/]+)/)?.[1]).filter(Boolean));
  for(const name of [...packages].sort()) {
