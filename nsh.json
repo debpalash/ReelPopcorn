@@ -1,0 +1,64 @@
+{
+  "name": "ReelPopcorn",
+  "id": "io.github.debpalash.reelpopcorn",
+  "version": "0.1.0",
+  "build": 1,
+  "theme": "theme.json",
+  "capabilities": {
+    "network": {
+      "hosts": [
+        "www.youtube.com",
+        "i.ytimg.com",
+        "movies-proxy.vercel.app",
+        "api.themoviedb.org",
+        "image.tmdb.org",
+        "inv.nadeko.net",
+        "invidious.nerdvpn.de",
+        "yt.chocolatemoo53.com",
+        "invidious.tiekoetter.com",
+        "youtube.com"
+      ]
+    },
+    "webview": {
+      "hosts": [
+        "io.github.debpalash.reelpopcorn",
+        "youtube.com",
+        "*.youtube.com",
+        "youtube-nocookie.com",
+        "*.youtube-nocookie.com",
+        "vimeo.com",
+        "*.vimeo.com",
+        "*.vimeocdn.com",
+        "twitch.tv",
+        "*.twitch.tv",
+        "*.ttvnw.net",
+        "*.twitchcdn.net",
+        "tiktok.com",
+        "*.tiktok.com",
+        "*.tiktokcdn.com",
+        "*.tiktokcdn-us.com",
+        "*.byteoversea.com",
+        "*.ibytedtos.com",
+        "spotify.com",
+        "*.spotify.com",
+        "*.scdn.co",
+        "*.spotifycdn.com"
+      ]
+    },
+    "openUrl": {
+      "schemes": [
+        "https"
+      ]
+    },
+    "process": {
+      "env": [
+        "TMDB_READ_TOKEN"
+      ],
+      "execute": [
+        "yt-dlp",
+        "/opt/homebrew/bin/yt-dlp",
+        "/usr/local/bin/yt-dlp"
+      ]
+    }
+  }
+}

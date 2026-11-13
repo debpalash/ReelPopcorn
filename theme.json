@@ -1,0 +1,50 @@
+{
+  "name": "ReelPopcorn",
+  "cssVars": {
+    "theme": {
+      "radius": "12px"
+    },
+    "light": {
+      "background": "#f5f5f7",
+      "foreground": "#1d1d1f",
+      "card": "#ffffff",
+      "card-foreground": "#1d1d1f",
+      "popover": "#ffffff",
+      "popover-foreground": "#1d1d1f",
+      "primary": "#0066cc",
+      "primary-foreground": "#ffffff",
+      "secondary": "#e9e9ed",
+      "secondary-foreground": "#1d1d1f",
+      "muted": "#e9e9ed",
+      "muted-foreground": "#68686e",
+      "accent": "#dfdfe5",
+      "accent-foreground": "#1d1d1f",
+      "border": "#d8d8de",
+      "input": "#b9b9c2",
+      "ring": "#0066cc",
+      "destructive": "#b52e26",
+      "player": "#000000"
+    },
+    "dark": {
+      "background": "#18181a",
+      "foreground": "#f5f5f7",
+      "card": "#242426",
+      "card-foreground": "#f5f5f7",
+      "popover": "#242426",
+      "popover-foreground": "#f5f5f7",
+      "primary": "#70b5ff",
+      "primary-foreground": "#062544",
+      "secondary": "#303034",
+      "secondary-foreground": "#f5f5f7",
+      "muted": "#303034",
+      "muted-foreground": "#b2b2ba",
+      "accent": "#414147",
+      "accent-foreground": "#f5f5f7",
+      "border": "#3c3c42",
+      "input": "#63636e",
+      "ring": "#70b5ff",
+      "destructive": "#ff8b80",
+      "player": "#000000"
+    }
+  }
+}

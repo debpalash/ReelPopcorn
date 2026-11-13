@@ -1,0 +1,24 @@
+# Dependencies and build output
+node_modules/
+.nsh/
+target/
+dist/
+coverage/
+
+# Local captures and live audit reports
+artifacts/
+*.log
+
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Editor and operating system files
+.DS_Store
+.idea/
+.vscode/

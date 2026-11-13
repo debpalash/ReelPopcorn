@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS · build and test
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install Native Shell 0.4.0
+        env:
+          NSH_VERSION: v0.4.0
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/longbridge/nsh/releases/download/v0.4.0/install.sh \
+            --output "$RUNNER_TEMP/install-nsh.sh"
+          sh "$RUNNER_TEMP/install-nsh.sh"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: npm ci
+      - run: make check
+      - name: Package Apple Silicon app
+        run: |
+          make package
+          codesign --verify --deep --strict dist/ReelPopcorn.app
+          mkdir -p dist/ReelPopcorn-macos-arm64
+          ditto dist/ReelPopcorn.app dist/ReelPopcorn-macos-arm64/ReelPopcorn.app
+          cp LICENSE NOTICE.md THIRD_PARTY_NOTICES.txt dist/ReelPopcorn-macos-arm64/
+          cp -R licenses dist/ReelPopcorn-macos-arm64/licenses
+          ditto -c -k --sequesterRsrc --keepParent dist/ReelPopcorn-macos-arm64 dist/ReelPopcorn-macos-arm64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReelPopcorn-macos-arm64
+          path: dist/ReelPopcorn-macos-arm64.zip
+          retention-days: 7

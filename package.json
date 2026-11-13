@@ -1,0 +1,39 @@
+{
+  "name": "reelpopcorn",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:player": "node scripts/build-player.mjs",
+    "test:player": "node scripts/test-player.mjs",
+    "check": "make check",
+    "test": "nsh test",
+    "dev": "make run",
+    "package": "make package"
+  },
+  "dependencies": {
+    "@videojs/html": "10.4.0",
+    "@videojs/youtube-video": "10.4.0",
+    "@videojs/vimeo-video": "10.4.0",
+    "@videojs/twitch-video": "10.4.0",
+    "@videojs/tiktok-video": "10.4.0",
+    "@videojs/spotify-audio": "10.4.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "description": "Watch movie and show clips together, free on YouTube.",
+  "license": "MIT",
+  "author": "Palash Debnath",
+  "homepage": "https://github.com/debpalash/ReelPopcorn#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/debpalash/ReelPopcorn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/debpalash/ReelPopcorn/issues"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
