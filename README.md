@@ -1,16 +1,42 @@
-# ReelPopcorn
+# ReelPopcorn — YouTube Movie Clip Player for Mac
 
 **Watch movie and show clips together, free on YouTube.**
 
-ReelPopcorn finds scenes from a title, matches their dialogue to a timed reference,
-and brings confirmed clips into one movie-style timeline. A compact Mac window
-keeps the picture front and center, with clips stacked along the bottom.
+ReelPopcorn is a free, open-source macOS app for watching movie scenes and TV
+episode clips from YouTube together. Find uploads, match their dialogue to timed
+subtitles, and play confirmed scenes in chronological order on a movie timeline.
+The compact, IINA-inspired theater keeps the picture front and center.
 
 [![CI](https://github.com/debpalash/ReelPopcorn/actions/workflows/ci.yml/badge.svg)](https://github.com/debpalash/ReelPopcorn/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform: macOS](https://img.shields.io/badge/platform-macOS-black.svg)](#run)
 
 Public alpha · macOS first. iOS and Android are planned, with no release date.
+
+[Get started](#run) · [How it works](#watch-in-order) ·
+[Screenshots](#screenshots) · [FAQ](#faq) ·
+[Releases](https://github.com/debpalash/ReelPopcorn/releases)
+
+![ReelPopcorn Mac interface tour: browse TMDB titles, find a movie and add sources in the YouTube clip theater](docs/media/reelpopcorn-demo.gif)
+
+*Interface tour made from native Mac captures. This GIF is not a playback recording.*
+
+## Screenshots
+
+![ReelPopcorn theater showing an official Paramount Movies clip preview, native controls, a bottom clip dock and the source importer](docs/media/theater.png)
+
+<details>
+<summary>Browse titles and review clip timing</summary>
+
+![TMDB movie and TV discovery in ReelPopcorn's dark Mac interface](docs/media/discover.png)
+
+<img src="docs/media/match-review.png" width="340" alt="ReelPopcorn match inspector: a Night of the Living Dead scene proposed at 00:06:16 with five dialogue anchors, awaiting confirmation">
+
+</details>
+
+Screenshots show the native Mac app. Playback stays with the source provider;
+proposed matches do not count as confirmed coverage.
+[Capture details and media credits](docs/media/README.md).
 
 ## What it does
 
@@ -78,6 +104,38 @@ runtime. See [provider details](docs/DEVELOPMENT.md#other-providers).
 | ⌘⇧F | Toggle immersive mode |
 | Escape | Close editor, inspector or immersive mode |
 | ⌘, | Connection settings |
+
+## FAQ
+
+### Can I watch a whole movie from YouTube clips?
+
+ReelPopcorn plays confirmed, available clips in movie order and shows the missing
+sections. It cannot promise a full movie or a complete TV episode. Coverage depends
+on uploads, captions and matching the same cut.
+
+### How does chronological clip matching work?
+
+Dialogue anchors align a clip's captions with a movie or episode's timed SRT/VTT
+subtitles. You review the proposed source range and movie time before confirming.
+Upload dates and clip numbers are not runtime evidence.
+
+### Is it free and legal to use?
+
+The app is free and open source. Choose official clips, licensed uploads or
+public-domain material, and follow the source provider's terms. ReelPopcorn
+cannot verify every uploader's rights. See [sources and rights](#sources-and-rights).
+
+### Do I need a YouTube API key or a TMDB account?
+
+No YouTube Data API key is required. Discovery uses yt-dlp or Invidious, and
+guest TMDB browsing works without a personal token. You can connect your own
+TMDB token if guest access is unavailable.
+
+### Does it download videos or replace the YouTube player?
+
+No. Video.js adapters use provider playback inside one retained WKWebView.
+The catalog, timeline and compact controls are native. Ads, branding and playback
+restrictions remain controlled by the provider.
 
 ## Sources and rights
 

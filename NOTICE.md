@@ -22,3 +22,5 @@ service terms, media rights and trademarks are separate.
 ReelPopcorn is independent of YouTube, Google, TMDB and the supported media
 providers. Names and logos belong to their respective owners. Movie artwork,
 video, audio and subtitles are not licensed under this project's MIT license.
+The screenshots and interface GIF in `docs/media/` contain provider artwork and
+previews; see [capture details and media credits](docs/media/README.md).
