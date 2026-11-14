@@ -1,4 +1,5 @@
 import process, { type ChildProcess } from "process";
+import configuration from "../../nsh.json";
 import { year, type Media } from "../tmdb/model";
 import { normalize,type Candidate } from "./model";
 import { searchScenes,type SearchBackend,type SearchContext } from "./search";
@@ -7,9 +8,7 @@ import { parseSubtitles } from "./alignment";
 export const INSTANCES = ["https://yt.chocolatemoo53.com", "https://inv.nadeko.net", "https://invidious.nerdvpn.de", "https://invidious.tiekoetter.com"];
 export type Provider = "auto" | "yt-dlp" | "invidious";
 export interface DiscoveryOptions { provider: Provider; instance: string }
-const COMMANDS = process.platform === "windows" ? ["yt-dlp.exe", "yt-dlp"]
-  : process.platform === "linux" ? ["yt-dlp", "/usr/local/bin/yt-dlp", "/usr/bin/yt-dlp"]
-  : ["/opt/homebrew/bin/yt-dlp", "/usr/local/bin/yt-dlp", "yt-dlp"];
+const COMMANDS = configuration.capabilities.process.execute;
 const aborted = () => new Error("Cancelled");
 
 function run(command: string, args: string[], signal?: AbortSignal): Promise<any> {

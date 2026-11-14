@@ -40,10 +40,14 @@ API key in **Connection…**. A `TMDB_READ_TOKEN` environment value is also supp
 on hosts exposing `process.env`; the dev host may omit it and starts in guest mode.
 Credentials are not written to app storage or sent to the guest proxy.
 
-Scene discovery checks `yt-dlp.exe` then `yt-dlp` on Windows. Linux checks
+Packaged scene discovery checks `yt-dlp.exe` then `yt-dlp` on Windows. Linux checks
 `yt-dlp` on PATH, `/usr/local/bin/yt-dlp`, then `/usr/bin/yt-dlp`. macOS checks
 `/opt/homebrew/bin/yt-dlp`, `/usr/local/bin/yt-dlp`, then `yt-dlp` on PATH.
 Auto mode falls back to the bundled Invidious instance allowlist.
+Source builds use bare executable names on PATH. The source `nsh.json` stays
+portable because NSH validates paths using its host OS. Packaging copies the app
+into a temporary project, adds that target's exact executable grants, and bundles
+the same granted lookup list. It does not edit the working tree's configuration.
 Native process jobs are shell-free, cancellable and bounded by time/output limits.
 No YouTube Data API key, account cookies or media downloads are required by this
 implementation. Metadata/caption access can fail or be restricted by providers.

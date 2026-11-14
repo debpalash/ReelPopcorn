@@ -2,14 +2,20 @@ import {build} from 'esbuild';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {desktopConfig} from './desktop-config.mjs';
 
-const config = JSON.parse(readFileSync('nsh.json', 'utf8'));
+const source = JSON.parse(readFileSync('nsh.json', 'utf8'));
+assert.ok(source.capabilities.process.execute.every(command => !/[\\/:]/.test(command)), 'Source manifest must parse on Windows');
 for (const [platform, expected] of [['windows', 'yt-dlp.exe'], ['linux', 'yt-dlp'], ['macos', '/opt/homebrew/bin/yt-dlp']]) {
+  const config = desktopConfig(source, platform);
+  if (platform === 'windows') assert.ok(config.capabilities.process.execute.every(command => !/[\\/:]/.test(command)));
   const calls = [];
   const bundled = await build({
     stdin: {contents: `export {discoveryBackend} from './src/scenes/discovery.ts';`, resolveDir: process.cwd()},
     bundle: true, write: false, format: 'cjs', platform: 'neutral',
     plugins: [{name: 'native-process', setup(api) {
+      api.onResolve({filter: /nsh\.json$/}, () => ({path: 'config', namespace: 'config'}));
+      api.onLoad({filter: /.*/, namespace: 'config'}, () => ({contents: JSON.stringify(config), loader: 'json'}));
       api.onResolve({filter: /^process$/}, () => ({path: 'process', namespace: 'fixture'}));
       api.onLoad({filter: /.*/, namespace: 'fixture'}, () => ({contents: 'export default globalThis.nativeProcess;'}));
     }}],

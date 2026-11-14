@@ -5,6 +5,7 @@
     "**/*.tsx"
   ],
   "compilerOptions": {
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true
   }
 }

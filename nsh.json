@@ -56,10 +56,7 @@
       ],
       "execute": [
         "yt-dlp",
-        "yt-dlp.exe",
-        "/opt/homebrew/bin/yt-dlp",
-        "/usr/local/bin/yt-dlp",
-        "/usr/bin/yt-dlp"
+        "yt-dlp.exe"
       ]
     }
   }

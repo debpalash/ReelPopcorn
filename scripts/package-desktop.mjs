@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {desktopConfig} from './desktop-config.mjs';
 
 process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const target = {darwin: 'macos', win32: 'windows', linux: 'linux'}[process.platform];
@@ -20,9 +21,13 @@ function run(command, args, options = {}) {
 }
 run(process.execPath, ['scripts/build-player.mjs']);
 const native = resolve('dist/native', target);
-run('nsh', ['package', '--target', target, '--out', native]);
 const staging = mkdtempSync(join(tmpdir(), 'reelpopcorn-package-'));
 try {
+  const project = join(staging, 'source');
+  mkdirSync(project);
+  for (const name of ['App.tsx', 'src', 'assets', 'theme.json', 'tsconfig.json', 'package.json']) cpSync(name, join(project, name), {recursive: true});
+  writeFileSync(join(project, 'nsh.json'), JSON.stringify(desktopConfig(config, target), null, 2));
+  run('nsh', ['package', project, '--target', target, '--out', native]);
   const root = join(staging, 'ReelPopcorn');
   const app = join(native, target === 'macos' ? 'ReelPopcorn.app' : 'ReelPopcorn');
   if (target === 'macos') {
