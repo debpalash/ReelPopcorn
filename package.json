@@ -1,15 +1,15 @@
 {
   "name": "reelpopcorn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
     "build:player": "node scripts/build-player.mjs",
     "test:player": "node scripts/test-player.mjs",
-    "check": "make check",
+    "check": "node scripts/check.mjs",
     "test": "nsh test",
-    "dev": "make run",
-    "package": "make package"
+    "dev": "node scripts/build-player.mjs && nsh run --window-size 1100x740",
+    "package": "node scripts/package-desktop.mjs"
   },
   "dependencies": {
     "@videojs/html": "10.4.0",

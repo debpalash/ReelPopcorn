@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.1 — 2026-11-14
+
+First downloadable desktop alpha.
+
+- Release CI for macOS arm64, Windows x86_64 and Linux x86_64, with reusable
+  platform builds on pushes and pull requests.
+- Headless checks, native theater interaction and packaged startup checks.
+- Versioned portable archives, included licenses and SHA-256 checksums;
+  publication waits for all three targets to pass.
+- Cross-platform Node commands for development, validation and packaging.
+- Platform-specific yt-dlp lookup and matching process capability grants.
+
+Windows/Linux are experimental. Code signing, notarization and mobile builds
+remain deferred. CI does not verify live provider playback.
+
 ## 0.1.0 — 2026-11-14
 
 First public alpha of ReelPopcorn for macOS.

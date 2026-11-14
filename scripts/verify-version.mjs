@@ -1,0 +1,10 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const read = name => JSON.parse(readFileSync(name, 'utf8'));
+const app = read('nsh.json'), pkg = read('package.json'), lock = read('package-lock.json');
+assert.match(app.version, /^\d+\.\d+\.\d+$/);
+assert.equal(pkg.version, app.version);
+assert.equal(lock.version, app.version);
+assert.equal(lock.packages[''].version, app.version);
+if (process.env.RELEASE_TAG) assert.equal(process.env.RELEASE_TAG, `v${app.version}`, 'Release tag must match the checked-out app version');
+console.log(`Version ${app.version} agrees across app, package, lockfile and release tag.`);

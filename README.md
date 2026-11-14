@@ -1,19 +1,20 @@
-# ReelPopcorn — YouTube Movie Clip Player for Mac
+# ReelPopcorn — YouTube Movie Clip Player
 
 **Watch movie and show clips together, free on YouTube.**
 
-ReelPopcorn is a free, open-source macOS app for watching movie scenes and TV
+ReelPopcorn is a free, open-source desktop app for watching movie scenes and TV
 episode clips from YouTube together. Find uploads, match their dialogue to timed
 subtitles, and play confirmed scenes in chronological order on a movie timeline.
 The compact, IINA-inspired theater keeps the picture front and center.
 
 [![CI](https://github.com/debpalash/ReelPopcorn/actions/workflows/ci.yml/badge.svg)](https://github.com/debpalash/ReelPopcorn/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform: macOS](https://img.shields.io/badge/platform-macOS-black.svg)](#run)
+[![Desktop: macOS, Windows, Linux](https://img.shields.io/badge/desktop-macOS%20%7C%20Windows%20%7C%20Linux-black.svg)](#download)
 
-Public alpha · macOS first. iOS and Android are planned, with no release date.
+Public alpha · macOS, with experimental Windows and Linux builds.
+iOS and Android are planned, with no release date.
 
-[Get started](#run) · [How it works](#watch-in-order) ·
+[Download](#download) · [Build from source](#run) · [How it works](#watch-in-order) ·
 [Screenshots](#screenshots) · [FAQ](#faq) ·
 [Releases](https://github.com/debpalash/ReelPopcorn/releases)
 
@@ -53,22 +54,33 @@ ReelPopcorn plays the available scenes. It does **not** guarantee a complete mov
 missing uploads, unavailable captions, alternate cuts and silent scenes leave gaps.
 Clip names, numbering and upload dates never stand in for verified movie times.
 
+## Download
+
+| Platform | Download |
+| --- | --- |
+| macOS 14+ · Apple Silicon | [Mac ZIP](https://github.com/debpalash/ReelPopcorn/releases/download/v0.1.1/ReelPopcorn-v0.1.1-macos-arm64.zip) |
+| Windows 10 1809+ · x64 · experimental | [Windows ZIP](https://github.com/debpalash/ReelPopcorn/releases/download/v0.1.1/ReelPopcorn-v0.1.1-windows-x86_64.zip) |
+| Linux · x86_64 · Ubuntu 24.04 or compatible · experimental | [Linux archive](https://github.com/debpalash/ReelPopcorn/releases/download/v0.1.1/ReelPopcorn-v0.1.1-linux-x86_64.tar.gz) |
+
+Extract the whole archive. Windows needs WebView2; Linux needs GTK 4.14+ and
+WebKitGTK 6.0. Install yt-dlp separately for local clip discovery. Downloaded
+apps do not require Node.js or NSH. Mac builds are ad hoc signed and not
+notarized; Windows builds are unsigned. See [installation and checksums](docs/INSTALL.md).
+
 ## Run
 
-Requires **macOS 14+**, **Apple Silicon**, **Node.js 22.18+**,
+To build from source, install **Node.js 22.18+**,
 [Native Shell 0.4.0](https://github.com/longbridge/nsh/releases/tag/v0.4.0),
-and `yt-dlp` for local discovery. Intel Macs require building NSH from source
-and have not been tested with this app.
+your platform's runtime libraries and `yt-dlp` for local discovery.
 
 Install NSH using its [official instructions](https://github.com/longbridge/nsh#quick-start)
 with `NSH_VERSION=v0.4.0`. Then:
 
 ```sh
-brew install node yt-dlp
 git clone https://github.com/debpalash/ReelPopcorn.git
 cd ReelPopcorn
 npm ci
-make run
+npm run dev
 ```
 
 Guest TMDB browsing works without a personal token through the public
@@ -104,6 +116,8 @@ runtime. See [provider details](docs/DEVELOPMENT.md#other-providers).
 | ⌘⇧F | Toggle immersive mode |
 | Escape | Close editor, inspector or immersive mode |
 | ⌘, | Connection settings |
+
+Use Ctrl instead of ⌘ on Windows and Linux.
 
 ## FAQ
 
@@ -155,14 +169,13 @@ ReelPopcorn is independent of YouTube and TMDB.
 ## Build and contribute
 
 ```sh
-make check          # typecheck, build, 48 tests, player bridge and startup checks
-make package        # dist/ReelPopcorn.app
-open dist/ReelPopcorn.app
+npm run check       # typecheck, build, 48 tests, bridge/startup/process checks
+npm run package     # native app, versioned archive and SHA-256 under dist/
 ```
 
-The local Apple Silicon bundle is ad hoc signed and **not notarized**. This alpha
-is a source release, not an App Store or Developer ID signed distribution.
-GitHub Actions also builds a short-lived Mac app artifact for each passing run.
+GitHub Actions builds and tests all three desktop targets and keeps seven-day
+CI artifacts. Pushing a matching version tag publishes a prerelease only after
+every target passes. See [release development](docs/DEVELOPMENT.md#ci-and-packaging).
 
 Built with [Native Shell](https://github.com/longbridge/nsh), TypeScript/TSX and
 [Video.js HTML](https://videojs.org/). Browsing, timelines and controls are native;

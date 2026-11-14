@@ -1,0 +1,112 @@
+name: Desktop builds
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
+      release-tag:
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-arm64
+            os: macos-15
+            target: macos
+          - platform: windows-x86_64
+            os: windows-2022
+            target: windows
+          - platform: linux-x86_64
+            os: ubuntu-24.04
+            target: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      NSH_VERSION: v0.4.0
+      RELEASE_TAG: ${{ inputs.release-tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Set distribution location
+        run: node --input-type=module -e "import fs from 'node:fs'; import path from 'node:path'; fs.appendFileSync(process.env.GITHUB_ENV, 'NSH_INSTALL_DIR=' + path.join(process.env.RUNNER_TEMP, 'nsh-0.4.0') + '\n');"
+      - name: Verify version
+        run: node scripts/verify-version.mjs
+      - name: Linux runtime libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-4-1 libwebkitgtk-6.0-4 \
+            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav xvfb dbus-x11
+      - name: Cache pinned NSH distribution
+        id: nsh
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NSH_INSTALL_DIR }}
+          key: nsh-0.4.0-${{ runner.os }}-${{ runner.arch }}
+      - name: Install NSH on macOS / Linux
+        if: runner.os != 'Windows' && steps.nsh.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/longbridge/nsh/releases/download/v0.4.0/install.sh \
+            --output "$RUNNER_TEMP/install-nsh.sh"
+          sh "$RUNNER_TEMP/install-nsh.sh"
+      - name: Install NSH on Windows
+        if: runner.os == 'Windows' && steps.nsh.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/longbridge/nsh/releases/download/v0.4.0/install.ps1 -OutFile "$env:RUNNER_TEMP/install-nsh.ps1"
+          & "$env:RUNNER_TEMP/install-nsh.ps1"
+      - name: Set NSH path on macOS / Linux
+        if: runner.os != 'Windows'
+        shell: bash
+        run: echo "$NSH_INSTALL_DIR/bin" >> "$GITHUB_PATH"
+      - name: Set NSH path on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Join-Path $env:NSH_INSTALL_DIR 'bin' | Out-File -FilePath $env:GITHUB_PATH -Append
+      - run: nsh --version
+      - run: npm ci
+      - name: Typecheck, build and test
+        run: npm run check
+      - name: Package release archive
+        run: npm run package
+      - name: Native theater smoke check
+        if: runner.os != 'Linux'
+        run: nsh test src/scenes/SceneTheater.test.tsx --filter "bottom timeline" --target ${{ matrix.target }}
+      - name: Linux native theater smoke check
+        if: runner.os == 'Linux'
+        run: dbus-run-session -- xvfb-run -a nsh test src/scenes/SceneTheater.test.tsx --filter "bottom timeline" --target linux
+        env:
+          GSK_RENDERER: cairo
+          WEBKIT_DISABLE_DMABUF_RENDERER: '1'
+      - name: Packaged app startup check
+        if: runner.os != 'Linux'
+        run: node scripts/smoke-package.mjs
+      - name: Linux packaged app startup check
+        if: runner.os == 'Linux'
+        run: dbus-run-session -- xvfb-run -a node scripts/smoke-package.mjs
+        env:
+          GSK_RENDERER: cairo
+          WEBKIT_DISABLE_DMABUF_RENDERER: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReelPopcorn-${{ matrix.platform }}
+          path: dist/releases/*
+          if-no-files-found: error
+          retention-days: 7

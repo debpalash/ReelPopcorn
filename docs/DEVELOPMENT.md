@@ -1,7 +1,8 @@
 # Development
 
-ReelPopcorn is a TSX application using Native Shell 0.4.0. Current support and
-validation are for macOS only. Node.js 22.18+ builds the local provider bundles
+ReelPopcorn is a TSX application using Native Shell 0.4.0. Desktop targets are
+macOS arm64, Windows x86_64 and Linux x86_64. Windows/Linux remain experimental;
+CI startup checks do not establish live provider playback. Node.js 22.18+ builds the local provider bundles
 and runs the bridge/startup scripts; Node 22 is selected by `.node-version` and CI.
 
 ## Local workflow
@@ -12,18 +13,21 @@ matching runtimes together. The project does not vendor the framework or yt-dlp.
 
 ```sh
 npm ci
-make run
-make check
-make package
+npm run dev
+npm run check
+npm run package
 ```
 
-`make run` rebuilds the player adapters, then runs
-`nsh run --target macos --window-size 1100x740`. NSH generates editor declarations
+`npm run dev` rebuilds the player adapters, then runs NSH on the current desktop
+with a 1100 × 740 window. `make run TARGET=linux` and `make run TARGET=windows`
+are also available where Make is installed; Make defaults to macOS.
+NSH generates editor declarations
 and its own configuration in ignored `.nsh/`. The runtime uses native signals,
 resources and views; it is not React or React Native.
 
-`make check` builds the adapters, typechecks, builds the app, runs the headless
-NSH test suite and checks the actual player bridge and startup modules in Node.
+`npm run check` builds the adapters, typechecks, builds the app, runs the headless
+NSH test suite and checks the actual player bridge, startup and platform process
+lookup modules in Node. It uses shell-free Node commands on every desktop.
 Tests mock HTTP responses and storage. Normal tests need no accounts or live
 YouTube access. Live audits below are separate.
 
@@ -36,8 +40,10 @@ API key in **Connection…**. A `TMDB_READ_TOKEN` environment value is also supp
 on hosts exposing `process.env`; the dev host may omit it and starts in guest mode.
 Credentials are not written to app storage or sent to the guest proxy.
 
-Scene discovery checks `/opt/homebrew/bin/yt-dlp`, `/usr/local/bin/yt-dlp`, then
-`yt-dlp` on PATH. Auto mode falls back to the bundled Invidious instance allowlist.
+Scene discovery checks `yt-dlp.exe` then `yt-dlp` on Windows. Linux checks
+`yt-dlp` on PATH, `/usr/local/bin/yt-dlp`, then `/usr/bin/yt-dlp`. macOS checks
+`/opt/homebrew/bin/yt-dlp`, `/usr/local/bin/yt-dlp`, then `yt-dlp` on PATH.
+Auto mode falls back to the bundled Invidious instance allowlist.
 Native process jobs are shell-free, cancellable and bounded by time/output limits.
 No YouTube Data API key, account cookies or media downloads are required by this
 implementation. Metadata/caption access can fail or be restricted by providers.
@@ -128,11 +134,38 @@ Do not commit full-film subtitle files, provider session URLs or private data.
 
 ## CI and packaging
 
-GitHub Actions uses the Apple Silicon `macos-15` runner, Node 22 and NSH 0.4.0.
-The upstream NSH installer verifies the downloaded distribution checksum. CI runs
-`make check`, packages the app and uploads a seven-day build artifact. Live
-provider audits are not required for pull requests.
+The reusable `desktop-build.yml` runs on Apple Silicon `macos-15`, x64
+`windows-2022` and x86_64 `ubuntu-24.04`, with Node 22 and NSH 0.4.0. Upstream
+installers verify the distribution checksums. Linux installs GTK, WebKitGTK and
+GStreamer libraries; native checks use Xvfb and a D-Bus session.
 
-`dist/ReelPopcorn.app` is an ad hoc signed Apple Silicon bundle. Developer ID
-signing, notarization, Intel/universal packaging and mobile releases are future
-work. No production speed, battery or memory benchmark has been established.
+Every target runs the same headless checks, packages its native app, exercises a
+native theater interaction and checks that the packaged executable stays running
+for six seconds without a reported startup exception. This checks startup and
+controls, not decoded video, audio or real provider availability. Each passing
+target uploads its archive and checksum as a seven-day CI artifact. Live provider
+audits are not required for pull requests.
+
+`npm run package` writes the native app under `dist/native/<target>/` and a
+versioned archive plus `.sha256` under `dist/releases/`. Each archive contains
+one `ReelPopcorn/` directory with the app, licenses and installation instructions.
+`make package` remains a convenience command for a bare local app under `dist/`.
+
+To release a new alpha:
+
+1. Update `nsh.json` version/build, `package.json` and its lockfile together.
+2. Update `CHANGELOG.md`, `docs/RELEASE_NOTES.md`, download links and install examples.
+3. Run `npm run check` and `npm run package`, then commit and push.
+4. Tag that commit with the matching version, such as `v0.1.1`, and push the tag.
+
+The Release workflow builds the exact tag, checks matching versions, waits for
+all three targets, verifies all archive hashes, and publishes a GitHub prerelease
+with `SHA256SUMS.txt`. Publication has a separate job with `contents: write`;
+builds use read-only access. Existing public releases cannot be overwritten.
+A failed publication leaves a draft that a manual rerun for the same tag can
+finish. Change code under a new tag rather than moving an existing release tag.
+
+Developer ID signing, notarization, Authenticode signing, Intel/universal Mac
+packaging and mobile releases remain future work. No production speed, battery
+or memory benchmark has been established. Runtime requirements and user setup
+are in [INSTALL.md](INSTALL.md).

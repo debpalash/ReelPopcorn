@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and release
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  desktop:
+    uses: ./.github/workflows/desktop-build.yml
+    with:
+      ref: ${{ inputs.tag || github.ref }}
+      release-tag: ${{ inputs.tag || github.ref_name }}
+  publish:
+    name: Publish verified desktop assets
+    needs: desktop
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: node scripts/verify-version.mjs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ReelPopcorn-*
+          merge-multiple: true
+          path: dist/releases
+      - run: node scripts/verify-release.mjs
+      - name: Publish alpha release after all targets pass
+        shell: bash
+        run: |
+          if gh release view "$RELEASE_TAG" --json isDraft > "$RUNNER_TEMP/existing-release.json" 2>/dev/null; then
+            node --input-type=module -e "import fs from 'node:fs'; if (!JSON.parse(fs.readFileSync(process.argv[1])).isDraft) throw new Error('Published releases are immutable; choose a new version.');" "$RUNNER_TEMP/existing-release.json"
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --prerelease \
+              --title "ReelPopcorn ${RELEASE_TAG#v} · Desktop alpha" --notes-file docs/RELEASE_NOTES.md
+          fi
+          gh release upload "$RELEASE_TAG" dist/releases/* --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false

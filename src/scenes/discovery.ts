@@ -7,7 +7,9 @@ import { parseSubtitles } from "./alignment";
 export const INSTANCES = ["https://yt.chocolatemoo53.com", "https://inv.nadeko.net", "https://invidious.nerdvpn.de", "https://invidious.tiekoetter.com"];
 export type Provider = "auto" | "yt-dlp" | "invidious";
 export interface DiscoveryOptions { provider: Provider; instance: string }
-const COMMANDS = ["/opt/homebrew/bin/yt-dlp", "/usr/local/bin/yt-dlp", "yt-dlp"];
+const COMMANDS = process.platform === "windows" ? ["yt-dlp.exe", "yt-dlp"]
+  : process.platform === "linux" ? ["yt-dlp", "/usr/local/bin/yt-dlp", "/usr/bin/yt-dlp"]
+  : ["/opt/homebrew/bin/yt-dlp", "/usr/local/bin/yt-dlp", "yt-dlp"];
 const aborted = () => new Error("Cancelled");
 
 function run(command: string, args: string[], signal?: AbortSignal): Promise<any> {

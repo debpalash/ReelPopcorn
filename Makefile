@@ -1,13 +1,12 @@
-.PHONY: run check package player
+.PHONY: run check package release player
+TARGET ?= macos
 player:
 	npm run build:player
 run: player
-	nsh run --target macos --window-size 1100x740
-check: player
-	nsh check
-	nsh build
-	nsh test
-	node scripts/test-player.mjs
-	node scripts/test-startup.mjs
+	nsh run --target $(TARGET) --window-size 1100x740
+check:
+	node scripts/check.mjs
 package: player
-	nsh package --target macos --out dist
+	nsh package --target $(TARGET) --out dist
+release:
+	node scripts/package-desktop.mjs
